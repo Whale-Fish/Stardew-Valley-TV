@@ -1,7 +1,7 @@
 import sys
 import os
 import requests
-from PySide6.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout
+from PySide6.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QPushButton
 from PySide6.QtGui import QMovie
 from PySide6.QtCore import Qt, QTimer
 
@@ -48,20 +48,39 @@ class GifPlayer(QWidget):
         # 当前目录下 gifs 文件夹
         self.folder = os.path.join(os.getcwd(), "gifs")
 
-        self.label = QLabel("加载中...")
+        self.started = False  # 👈 关键状态
+
+         # ===== UI =====
+        self.label = QLabel("点击下方按钮查看天气")
         self.label.setAlignment(Qt.AlignCenter)
+
+        self.btn_weather = QPushButton("天气预报")
 
         layout = QVBoxLayout()
         layout.addWidget(self.label)
+        layout.addWidget(self.btn_weather)
         self.setLayout(layout)
+
+        # ===== 信号 =====
+        self.btn_weather.clicked.connect(self.on_click)
 
         self.current_movie = None
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.play_weather_gif)
 
-        # 启动
+    # ===== 按钮点击 =====
+    def on_click(self):
+        if not self.started:
+            self.started = True
+            self.start_player()
+        else:
+            # 可扩展：以后做“返回首页”或“刷新”
+            self.play_weather_gif()
+
+        # ===== 启动播放逻辑 =====
+    def start_player(self):
         self.play_weather_gif()
-        self.timer.start(30 * 60 * 1000)  # 每30分钟更新一次
+        self.timer.start(30 * 60 * 1000)  # 30分钟更新
 
     def play_weather_gif(self):
         weather = get_weather()
