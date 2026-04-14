@@ -15,14 +15,6 @@ sign = "virgo"
 
 
 # 天气映射
-# WEATHER_MAP = {
-#     "Clear": "sunny.gif",
-#     "Clouds": "wind.gif",
-#     "Rain": "rain.gif",
-#     "Snow": "snow.gif",
-#     "Drizzle": "rain.gif",
-#     "Thunderstorm": "thunder.gif"
-# }
 WEATHER_MAP = {
     "Clear": "finaloutput_sunny.gif",
     "Clouds": "finaloutput_wind.gif",
@@ -49,6 +41,39 @@ def get_weather():
         data = res.json()
         return data["weather"][0]["main"]
     except:
+        return None
+    
+def normalize_weather(text):
+    if "晴" in text or text == "Clear":
+        return "Clear"
+    if "云" in text or "雾" in text or text == "Clouds":
+        return "Clouds"
+    if "雨" in text or text == "Rain":
+        return "Rain"
+    if "雪" in text or text == "Snow":
+        return "Snow"
+    if "雷" in text or text == "Thunderstorm":
+        return "Thunderstorm"
+    return None
+
+def get_weather_in_China():
+    key = "07058f80bc1f4f82812f1209abdad557"
+    city = "101210101"  # 杭州
+
+    url = f"https://mg4y3m26vm.re.qweatherapi.com/v7/weather/now?location={city}&key={key}"
+
+    try:
+        res = requests.get(url, timeout=5)
+        data = res.json()
+
+        if data.get("code") != "200":
+            print("API错误:", data)
+            return None
+
+        return normalize_weather(data["now"]["text"])
+
+    except Exception as e:
+        print("请求失败:", e)
         return None
 
 def calc_seed(birthday, sign):
@@ -172,7 +197,7 @@ class GifPlayer(QWidget):
         self.current_movie.start()
 
     def play_weather_gif(self):
-        weather = get_weather()
+        weather = get_weather_in_China()
 
         if not weather:
             self.label.setText("天气获取失败")
