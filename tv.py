@@ -26,12 +26,55 @@ WEATHER_MAP = {
 
 LEVELS = ["Terrible", "Bad", "Average", "Good", "Excellent"]
 DIVINATION_MAP = {
-    "Terrible": "Skull.gif",
-    "Bad": "bat.gif",
-    "Average": "Fairy_Light.gif",
-    "Good": "gold.gif",
-    "Excellent": "star.gif"
+    "Terrible": "finaloutput_Skull.gif",
+    "Bad": "finaloutput_bat.gif",
+    "Average": "finaloutput_Fairy_Light.gif",
+    "Good": "finaloutput_gold.gif",
+    "Excellent": "finaloutput_star.gif"
 }
+
+# button_style = """
+# QPushButton {
+#     background-color: #444;
+#     color: white;
+#     border-radius: 8px;
+#     padding: 10px;
+#     font-size: 16px;
+# }
+
+# QPushButton:hover {
+#     background-color: #66ccff;
+#     color: black;
+#     border: 2px solid white;
+# }
+
+# QPushButton:pressed {
+#     background-color: #3399cc;
+# }
+# """
+
+button_style = """
+QPushButton {
+    background-color: #3a2f1b;
+    color: #f5e6c8;
+    border: 3px solid #8b6f3d;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 16px;
+}
+
+QPushButton:hover {
+    background-color: #caa86b;
+    color: black;
+    border: 3px solid #fff2cc;
+}
+
+QPushButton:pressed {
+    background-color: #a67c3d;
+    padding-left: 14px;
+    padding-top: 14px;
+}
+"""
 
 
 def get_weather():
@@ -46,7 +89,7 @@ def get_weather():
 def normalize_weather(text):
     if "晴" in text or text == "Clear":
         return "Clear"
-    if "云" in text or "雾" in text or text == "Clouds":
+    if "云" in text or "雾" in text or "阴" in text or text == "Clouds":
         return "Clouds"
     if "雨" in text or text == "Rain":
         return "Rain"
@@ -65,6 +108,7 @@ def get_weather_in_China():
     try:
         res = requests.get(url, timeout=5)
         data = res.json()
+        #print(data)
 
         if data.get("code") != "200":
             print("API错误:", data)
@@ -94,7 +138,26 @@ class GifPlayer(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("星露谷小电视")
+        # self.setStyleSheet("""
+        # QWidget {
+        #     background-color: #222;
+        #     color: white;
+        # }
+        # """)
+
+        self.setStyleSheet("""
+        QWidget {
+            background-color: #1b1b1b;
+            color: #f5f5dc;
+            font-family: "Courier New";  /* 像素感字体 */
+        }
+
+        QLabel {
+            font-size: 18px;
+        }
+        """)
+
+        self.setWindowTitle("📺 星露谷小电视")
         self.resize(400, 400)
 
         # 当前目录下 gifs 文件夹
@@ -104,22 +167,29 @@ class GifPlayer(QWidget):
         self.mode = "home"  # 👈 当前模式
 
          # ===== UI =====
-        self.label = QLabel("点击下方按钮选择功能")
+        self.label = QLabel("📺 欢迎收看 今日节目")
         self.label.setAlignment(Qt.AlignCenter)
 
         self.btn_weather = QPushButton("天气预报")
         self.btn_luck = QPushButton("算命占卜")
         self.btn_back = QPushButton("返回首页")
 
+        self.btn_weather.setStyleSheet(button_style)
+        self.btn_luck.setStyleSheet(button_style)
+        self.btn_back.setStyleSheet(button_style)
+
         # 默认隐藏返回按钮
         self.btn_back.hide()
 
         # 布局
-        btn_layout = QHBoxLayout()
+        btn_layout = QVBoxLayout()
+        btn_layout.setSpacing(15)
         btn_layout.addWidget(self.btn_weather)
         btn_layout.addWidget(self.btn_luck)
 
         layout = QVBoxLayout()
+        layout.setSpacing(10)
+        layout.setContentsMargins(40, 40, 40, 40)
         layout.addWidget(self.label)
         layout.addLayout(btn_layout)
         layout.addWidget(self.btn_back)
@@ -143,13 +213,13 @@ class GifPlayer(QWidget):
 
         self.timer.stop()
 
-        self.label.setText("点击下方按钮选择功能")
+        self.label.setText("📺 欢迎收看 今日节目")
 
         self.btn_weather.show()
         self.btn_luck.show()
         self.btn_back.hide()
 
-        self.setWindowTitle(f"星露谷小电视")
+        self.setWindowTitle(f"📺 星露谷小电视")
 
     # ===== 天气模式 =====
     def start_weather(self):
